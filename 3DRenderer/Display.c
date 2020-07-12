@@ -3,11 +3,18 @@
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
+/*
+This function initializes SDL
+return false if failed
+return true if everything went ok
+*/
 bool InitializeSDL() {
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("Could not initialize SDL");
 	}
 
+	//Display Mode to get currrent monitor resolution
 	SDL_DisplayMode display_mode;
 	int display_mode_control = SDL_GetCurrentDisplayMode(0, &display_mode);
 
@@ -29,6 +36,7 @@ bool InitializeSDL() {
 		return false;
 	}
 
+	// Create renderer
 	renderer = SDL_CreateRenderer(window, -1, 0);
 
 	if (!renderer) {
