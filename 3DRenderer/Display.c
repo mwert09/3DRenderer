@@ -3,12 +3,18 @@
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
+uint32_t* color_buffer = NULL;
+SDL_Texture* color_buffer_texture = NULL;
+
+int WINDOW_WIDTH = 0;
+int WINDOW_HEIGHT = 0;
+
 /*
 This function initializes SDL
 return false if failed
 return true if everything went ok
 */
-bool InitializeSDL() {
+bool InitializeSDL(void) {
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("Could not initialize SDL");
@@ -17,6 +23,8 @@ bool InitializeSDL() {
 	//Display Mode to get currrent monitor resolution
 	SDL_DisplayMode display_mode;
 	int display_mode_control = SDL_GetCurrentDisplayMode(0, &display_mode);
+	WINDOW_WIDTH = display_mode.w;
+	WINDOW_HEIGHT = display_mode.h;
 
 	if (display_mode_control != 0) {
 		printf("Could not get display mode #%s", SDL_GetError());
@@ -26,8 +34,8 @@ bool InitializeSDL() {
 	window = SDL_CreateWindow("Renderer",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		display_mode.w,
-		display_mode.h,
+		WINDOW_WIDTH,
+		WINDOW_HEIGHT,
 		SDL_WINDOW_BORDERLESS);
 
 	// Check if window is null
@@ -45,4 +53,30 @@ bool InitializeSDL() {
 	}
 
 	return true;
+}
+
+/*Clears the color buffer*/
+void ClearColorBuffer(uint32_t color) {
+	for (int y = 0; y < WINDOW_HEIGHT; y++) {
+		for (int x = 0; x < WINDOW_WIDTH; x++) {
+			color_buffer[(WINDOW_WIDTH * y) + x] = color;
+		}
+	}
+}
+/*This function is for copying our color buffer to texture and render it*/
+void RenderColorBuffer(void) {
+	SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, (int)(sizeof(uint32_t) * WINDOW_WIDTH));
+	SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+}
+/*Draw a grid on the screen*/
+void DrawGrid(void) {
+	for (int y = 10; y < WINDOW_HEIGHT; y+=5) {
+		for (int x = 10; x < WINDOW_WIDTH; x+5) {
+			DrawPixel(x, y, 0xFFFFFFFF);
+		}
+	}
+}
+/* Draw a pixel on the screen */
+void DrawPixel(int x, int y, uint32_t color) {
+	color_buffer[(WINDOW_WIDTH * y) + x] = color;
 }

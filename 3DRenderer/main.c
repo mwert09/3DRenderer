@@ -7,14 +7,21 @@ bool is_running = false;
 
 // Runs only once 
 void Setup() {
-
+	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+	color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 // Render
 void Render() {
-	/* This will change soon */
-	SDL_RenderClear(renderer);
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 1);
+	/*Let's draw a grid*/
+
+	DrawGrid();
+
+	/*Now we have a color buffer
+	  We copy our color buffer to our texture and render it
+	*/
+	ClearColorBuffer(0xFF000000);
+	RenderColorBuffer();
 	SDL_RenderPresent(renderer);
 }
 
@@ -46,9 +53,11 @@ void FreeResources() {
 }
 
 int main(int argc, char* argv[]) {
-	Setup();
+	
 
 	is_running = InitializeSDL();
+
+	Setup();
 
 	// simple game loop
 	while (is_running) {
