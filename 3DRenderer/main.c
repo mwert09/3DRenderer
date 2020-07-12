@@ -14,14 +14,12 @@ void Setup() {
 // Render
 void Render() {
 	/*Let's draw a grid*/
-
 	DrawGrid();
-
 	/*Now we have a color buffer
 	  We copy our color buffer to our texture and render it
 	*/
-	ClearColorBuffer(0xFF000000);
 	RenderColorBuffer();
+	ClearColorBuffer(0xFF000000);
 	SDL_RenderPresent(renderer);
 }
 
@@ -50,6 +48,8 @@ void Update() {
 void FreeResources() {
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
+	free(color_buffer);
+	SDL_DestroyTexture(color_buffer_texture);
 }
 
 int main(int argc, char* argv[]) {

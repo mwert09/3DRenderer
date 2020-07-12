@@ -24,3 +24,5 @@ void RenderColorBuffer(void);
 void DrawGrid(void);
 //Draw a pixel on the screen
 void DrawPixel(int x, int y, uint32_t color);
+//Draw a rect on the screen
+void DrawRect(int x1, int y1, int x2, int y2, uint32_t color);

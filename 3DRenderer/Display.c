@@ -70,13 +70,26 @@ void RenderColorBuffer(void) {
 }
 /*Draw a grid on the screen*/
 void DrawGrid(void) {
-	for (int y = 10; y < WINDOW_HEIGHT; y+=5) {
-		for (int x = 10; x < WINDOW_WIDTH; x+5) {
-			DrawPixel(x, y, 0xFFFFFFFF);
+	for (int y = 0; y < WINDOW_HEIGHT; y += 10) {
+		for (int x = 0; x < WINDOW_WIDTH; x += 10) {
+			DrawPixel(x, y, 0xFF333333);
+			//color_buffer[(WINDOW_WIDTH * y) + x] = 0xFF333333;
 		}
 	}
 }
+
 /* Draw a pixel on the screen */
 void DrawPixel(int x, int y, uint32_t color) {
-	color_buffer[(WINDOW_WIDTH * y) + x] = color;
+	if (x < WINDOW_WIDTH && x >= 0 && y < WINDOW_HEIGHT && y >= 0) {
+		color_buffer[(WINDOW_WIDTH * y) + x] = color;
+	}
+}
+/* Draw a rect on the screen */
+void DrawRect(int x1, int y1, int x2, int y2, uint32_t color) {
+	for (int y = y1; y <= y2; y ++) {
+		for (int x = x1; x <= x2; x ++) {
+			DrawPixel(x, y, 0xFF333333);
+			//color_buffer[(WINDOW_WIDTH * y) + x] = 0xFF333333;
+		}
+	}
 }
