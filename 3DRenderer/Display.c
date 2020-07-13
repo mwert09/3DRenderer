@@ -86,9 +86,9 @@ void DrawPixel(int x, int y, uint32_t color) {
 }
 /* Draw a rect on the screen */
 void DrawRect(int x1, int y1, int x2, int y2, uint32_t color) {
-	for (int y = y1; y <= y2; y ++) {
-		for (int x = x1; x <= x2; x ++) {
-			DrawPixel(x, y, 0xFF333333);
+	for (int y = y1; y <= y1 + y2; y ++) {
+		for (int x = x1; x <= x1 + x2; x ++) {
+			DrawPixel(x, y, color);
 			//color_buffer[(WINDOW_WIDTH * y) + x] = 0xFF333333;
 		}
 	}
