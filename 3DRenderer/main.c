@@ -14,6 +14,9 @@ int fov_factor = 1280;
 /* Camera Position temp */
 vec3_t camera_pos = { .x = 0, .y = 0, .z = -5 };
 
+/* Cube Rotation This will change later */
+vec3_t cube_rotation = { .x = 0.01, .y = 0.01, .z = 0.01 };
+
 // is_running to check if SDL initialized failed or not
 bool is_running = false;
 
@@ -86,12 +89,28 @@ void Input() {
 }
 // Update location rotation scale
 void Update() {
+	/* Increase rotation every update for testing */
+	cube_rotation.x += 0.01;
+	cube_rotation.y += 0.01;
+	cube_rotation.z += 0.01;
 
 	/* Initialize projected points(vectors) for testing */
 	for (int i = 0; i < N_POINTS; i++) {
-		vec3_t point = cube_points[i];
-		point.z -= camera_pos.z;
-		vec2_t projected_point = project(point);
+
+		/* Apply rotation to cube points */
+		vec3_t transformed_point = cube_points[i];
+		//vec3_t point = cube_points[i];
+
+		/*Get the rotated point*/
+		transformed_point = RotateX(transformed_point, cube_rotation.x);
+		transformed_point = RotateY(transformed_point, cube_rotation.y);
+		transformed_point = RotateZ(transformed_point, cube_rotation.z);
+
+		// Temp This will change later
+		transformed_point.z -= camera_pos.z;
+
+		/*Project vectors to our 2d screen*/
+		vec2_t projected_point = project(transformed_point);
 		projected_points[i] = projected_point;
 	}
 
