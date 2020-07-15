@@ -17,6 +17,9 @@ vec3_t camera_pos = { .x = 0, .y = 0, .z = -5 };
 /* Cube Rotation This will change later */
 vec3_t cube_rotation = { .x = 0.01, .y = 0.01, .z = 0.01 };
 
+/* previous frame time */
+float previous_frame_time = 0;
+
 // is_running to check if SDL initialized failed or not
 bool is_running = false;
 
@@ -50,6 +53,13 @@ void Setup() {
 
 // Render
 void Render() {
+	
+	int time_to_wait = TARGET_FRAME_TIME - (SDL_GetTicks() - previous_frame_time);
+	if (time_to_wait > 0 && time_to_wait < TARGET_FRAME_TIME) {
+		SDL_Delay(time_to_wait);
+	}
+	previous_frame_time = SDL_GetTicks();
+	previous_frame_time = SDL_GetTicks();
 	/*Let's draw a grid*/
 	DrawGrid();
 

@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <SDL.h>
 
+#define TARGET_FRAME 60
+#define TARGET_FRAME_TIME (1000/TARGET_FRAME)
+
 extern int WINDOW_WIDTH;
 extern int WINDOW_HEIGHT;
 
