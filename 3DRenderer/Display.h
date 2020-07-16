@@ -1,6 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
-#endif
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL.h>
@@ -29,3 +29,5 @@ void DrawGrid(void);
 void DrawPixel(int x, int y, uint32_t color);
 //Draw a rect on the screen
 void DrawRect(int x1, int y1, int x2, int y2, uint32_t color);
+
+#endif

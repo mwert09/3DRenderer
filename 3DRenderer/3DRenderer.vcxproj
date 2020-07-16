@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="array.c" />
     <ClCompile Include="Display.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="array.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>

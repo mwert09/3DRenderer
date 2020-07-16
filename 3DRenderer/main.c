@@ -132,6 +132,8 @@ void FreeResources() {
 	SDL_DestroyRenderer(renderer);
 	free(color_buffer);
 	SDL_DestroyTexture(color_buffer_texture);
+
+	SDL_Quit();
 }
 
 int main(int argc, char* argv[]) {
