@@ -93,3 +93,34 @@ void DrawRect(int x1, int y1, int x2, int y2, uint32_t color) {
 		}
 	}
 }
+
+/* Draw a triangle on the screen */
+void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+	DrawLine(x0, y0, x1, y1, 0xFFFFFFFF);
+	DrawLine(x1, y1, x2, y2, 0xFFFFFFFF);
+	DrawLine(x0, y0, x2, y2, 0xFFFFFFFF);
+}
+
+/* Draw a line on the screen */
+void DrawLine(int x0, int y0, int x1, int y1, uint32_t color){
+	float step;
+	float dx = x1 - x0;
+	float dy = y1 - y0;
+
+	step = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+
+	float x_inc = dx / step;
+	float y_inc = dy / step;
+
+	float x = x0;
+	float y = y0;
+	int i = 0;
+	while (i <= step) {
+		DrawPixel(x, y, 0xFFFFFFFF);
+		x += x_inc;
+		y += y_inc;
+		i++;
+	}
+	
+
+}
