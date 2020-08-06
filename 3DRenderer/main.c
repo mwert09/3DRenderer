@@ -54,7 +54,7 @@ void Setup() {
 			}
 		}
 	}*/
-	LoadCubeMeshData();
+	LoadMeshData("./assets/f22.obj");
 }
 
 // Render

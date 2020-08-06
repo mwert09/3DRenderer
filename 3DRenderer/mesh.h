@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "triangle.h"
 #include "array.h"
+#include <stdio.h>
+#include <string.h>
 
 #define N_CUBE_VERTICES 8
 #define N_CUBE_FACES (6 * 2) // 6 cube faces, 2 triangles per face
@@ -21,6 +23,7 @@ extern face_t CubeFaces[N_CUBE_FACES];
 
 // Temp function to load hardcoded data
 void LoadCubeMeshData(void);
+void LoadMeshData(char* file_location);
 
 
 

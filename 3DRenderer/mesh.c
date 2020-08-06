@@ -1,5 +1,6 @@
 #include "mesh.h"
 
+
 mesh_t mesh = {
     .vertices = NULL,
     .faces = NULL,
@@ -49,4 +50,63 @@ void LoadCubeMeshData(void) {
         face_t cube_face = CubeFaces[i];
         array_push(mesh.faces, cube_face);
     }
+}
+
+void LoadMeshData(char* filename) {
+    // initialize a buffer to read from file
+    char line[1024];
+    char cwd[1024];
+    
+    printf("%s\n", filename);
+    char* data_path = NULL;
+    char* base_path = SDL_GetBasePath();
+    if (base_path) {
+        data_path = base_path;
+    }
+    else {
+        data_path = SDL_strdup("./");
+    }
+
+    char *fullpath = strcat(data_path, filename);
+
+    // open file
+    FILE* file;
+    file = fopen(fullpath, "r");
+
+    if (file) {
+        // read line fread(&line, sizeof(char), 31, file)
+        while (fgets(line, 1024, file)) {
+            // check if it is anything we want
+            // if it is, then push it to the corresponding array
+            if (strncmp(line, "v ", 2) == 0) {
+                vec3_t CurrentVertex;
+                sscanf(line, "v %f %f %f", &CurrentVertex.x, &CurrentVertex.y, &CurrentVertex.z);
+                array_push(mesh.vertices, CurrentVertex);
+            }
+
+            if (strncmp(line, "f ", 2) == 0) {
+                int vertex_indices[3];
+                int texture_indices[3];
+                int normal_indices[3];
+                sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+                    &vertex_indices[0], &texture_indices[0], &normal_indices[0],
+                    &vertex_indices[1], &texture_indices[1], &normal_indices[1],
+                    &vertex_indices[2], &texture_indices[2], &normal_indices[2]
+                );
+                face_t CurrentFace = {
+                    .a = vertex_indices[0],
+                    .b = vertex_indices[1],
+                    .c = vertex_indices[2]
+                };
+                array_push(mesh.faces, CurrentFace);
+            }
+        }
+    }
+    else {
+        
+        printf("Could not open %s app is running here: %s\n", filename, data_path);
+        return;
+    }
+    
+    fclose(file);
 }
