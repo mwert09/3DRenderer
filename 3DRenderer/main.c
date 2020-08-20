@@ -18,7 +18,7 @@ triangle_t *TrianglesToRender = NULL;
 int fov_factor = 1280;
 
 /* Camera Position temp */
-vec3_t camera_pos = { .x = 0, .y = 0, .z = -5 };
+vec3_t camera_pos = {0, 0, 0 };
 
 /* Cube Rotation This will change later */
 //vec3_t cube_rotation = { .x = 0.01, .y = 0.01, .z = 0.01 };
@@ -132,8 +132,7 @@ void Update() {
 		face_vertices[1] = mesh.vertices[current_face.b - 1];
 		face_vertices[2] = mesh.vertices[current_face.c - 1];
 
-		triangle_t projected_triangle;
-
+		vec3_t transformed_vertices[3];
 		for (int j = 0; j < 3; j++) {
 			vec3_t transformed_vertex = face_vertices[j];
 
@@ -143,9 +142,41 @@ void Update() {
 			transformed_vertex = RotateZ(transformed_vertex, mesh.rotation.z);
 
 			// get away from the camera
-			transformed_vertex.z -= camera_pos.z;
+			transformed_vertex.z += 5;
+			transformed_vertices[j] = transformed_vertex;
+		}
+		
+		// Get All 3 vertices of the current triangle face
+		vec3_t vector_a = transformed_vertices[0]; // a
+		vec3_t vector_b = transformed_vertices[1]; // b
+		vec3_t vector_c = transformed_vertices[2]; // c
 
-			vec2_t projected_vertex = project(transformed_vertex);
+		// Find length
+		vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+		vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+		vec3_normalize(&vector_ab);
+		vec3_normalize(&vector_ac);
+
+		// Calculate normal
+		vec3_t normal = vec3_cross(vector_ab, vector_ac);
+		vec3_normalize(&normal);
+
+		// Calculate camera ray
+		vec3_t camera_ray = vec3_sub(camera_pos, vector_a);
+
+		// Calculate dot 
+		float DotNormalCamera = vec3_dot(normal, camera_ray);
+
+		// If it is less than zero don't add this triangle to triangles_to_render array
+		if (DotNormalCamera < 0) {
+			continue;
+		}
+
+
+		triangle_t projected_triangle;
+
+		for(int j = 0; j < 3; j++){
+			vec2_t projected_vertex = project(transformed_vertices[j]);
 			projected_vertex.x += (WINDOW_WIDTH / 2);
 			projected_vertex.y += (WINDOW_HEIGHT / 2);
 			projected_triangle.points[j] = projected_vertex;
