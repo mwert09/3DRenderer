@@ -1,5 +1,6 @@
 ## 3DRenderer
-#Rendering with SDL
+# Rendering with SDL
 
-Simple renderer with c using SDL\
-Doing it for fun
+Simple renderer with c using SDL.
+Doing it for fun.
+Will update this later.
