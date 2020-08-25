@@ -1,3 +1,14 @@
+/*
+	Mert Kilic
+
+		WHAT'S NEXT?
+
+		Different rendering modes
+		Colored triangle faces
+
+
+ */
+
 #include <stdio.h>
 #include <SDL.h>
 #include "Display.h"
@@ -78,6 +89,14 @@ void Render() {
 			triangle_to_render.points[2].x, triangle_to_render.points[2].y,
 			0xFFFFFFFF
 		);
+
+		DrawFilledTriangle(triangle_to_render.points[0].x, triangle_to_render.points[0].y,
+			triangle_to_render.points[1].x, triangle_to_render.points[1].y,
+			triangle_to_render.points[2].x, triangle_to_render.points[2].y,
+			0x55555555
+		);
+
+		
 	}
 
 	/*Now we have a color buffer
