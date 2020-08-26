@@ -10,11 +10,13 @@ typedef struct {
 	int a;
 	int b;
 	int c;
+	uint32_t color;
 }face_t;
 
 /*Type definition for triangle*/
 typedef struct {
 	vec2_t points[3];
+	uint32_t color;
 }triangle_t;
 
 /* Function to swap two integer pointer data */

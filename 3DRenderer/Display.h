@@ -8,6 +8,18 @@
 #define TARGET_FRAME 60
 #define TARGET_FRAME_TIME (1000/TARGET_FRAME)
 
+enum culling_mode {
+	CULL_NONE,
+	CULL_BACKFACE
+} culling_mode;
+
+enum rendering_modes {
+	WIREFRAME,
+	WIREFRAME_VERTEX,
+	RENDER_FILL_TRIANGLE,
+	RENDER_FILL_TRIANGLE_WIREFRAME
+} render_method;
+
 extern int WINDOW_WIDTH;
 extern int WINDOW_HEIGHT;
 
