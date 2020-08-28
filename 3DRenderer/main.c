@@ -206,9 +206,11 @@ void Update() {
 		vec2_t projected_points[3];
 		for(int j = 0; j < 3; j++){
 			projected_points[j] = project(transformed_vertices[j]);
-			projected_points[j].x += (WINDOW_WIDTH / 2);
+			projected_points[j].x += WINDOW_WIDTH / 2;
 			projected_points[j].y += (WINDOW_HEIGHT / 2);
 		}
+
+		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 
 		triangle_t projected_triangle = {
 			.points = {
@@ -216,12 +218,25 @@ void Update() {
 				{projected_points[1].x, projected_points[1].y},
 				{projected_points[2].x, projected_points[2].y},
 			},
-			.color = current_face.color
+			.color = current_face.color,
+			.avg_depth = avg_depth
 		};
 		
 		array_push(TrianglesToRender, projected_triangle);
 	}
 
+	// SORT BY AVG_DEPTH
+	int length = array_length(TrianglesToRender) - 1;
+	for (int i = 0; i < length; i++) {
+		for (int j = 0; j < length - i; j++) {
+			if (TrianglesToRender[j].avg_depth < TrianglesToRender[j + 1].avg_depth) {
+				triangle_t temp;
+				temp = TrianglesToRender[j];
+				TrianglesToRender[j] = TrianglesToRender[j + 1];
+				TrianglesToRender[j + 1] = temp;
+			}
+		}
+	}
 }
 
 // Free resouces when we are done
