@@ -15,6 +15,14 @@ typedef struct {
 	float z;
 }vec3_t;
 
+typedef struct
+{
+	float x;
+	float y;
+	float z;
+	float w;
+}vec4_t;
+
 /* VECTOR2 FUNCTIONS */
 // Vector 2 length magnitude hipotenus
 float vec2_length(vec2_t v);
@@ -62,6 +70,8 @@ float vec3_dot(vec3_t a, vec3_t b);
 /* Vector normalization */
 void vec3_normalize(vec3_t* a);
 
+vec3_t vec3_from_vec4(vec4_t v);
+vec4_t vec4_from_vec3(vec3_t v);
 
 /* Rotate vector around x axis */
 vec3_t RotateX(vec3_t point, float angle);

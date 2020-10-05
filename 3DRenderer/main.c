@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "triangle.h"
 #include "array.h"
+#include "matrix.h"
 
 /*#define N_POINTS (9*9*9)
  Cube vectors for testing 
@@ -18,8 +19,8 @@ vec2_t projected_points[N_POINTS];*/
 // Triangles to render each frame 
 triangle_t *TrianglesToRender = NULL;
 
-/* Simple field of view factor */
-int fov_factor = 1280;
+mat4_t perspective_matrix;
+
 
 /* Camera Position temp */
 vec3_t camera_pos = {0, 0, 0 };
@@ -33,21 +34,18 @@ float previous_frame_time = 0;
 // is_running to check if SDL initialized failed or not
 bool is_running = false;
 
-/* Simple perspective projection */
-vec2_t project(vec3_t point) {
-	vec2_t projected_point = {
-		.x = (point.x * fov_factor) / point.z,
-		.y = (point.y * fov_factor) / point.z
-	};
-	return projected_point;
-}
-
 // Runs only once 
 void Setup() {
 	render_method = WIREFRAME;
 	culling_mode = CULL_BACKFACE;
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
 	color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	float fov = M_PI / 3.0;
+	float aspect_ratio = (float)WINDOW_HEIGHT / (float)WINDOW_WIDTH;
+	float znear = 0.1;
+	float zfar = 100.0;
+	perspective_matrix = mat4_make_perspective(fov, aspect_ratio, znear, zfar);
 	
 	LoadCubeMeshData();
 	//LoadMeshData("./assets/f22.obj");
@@ -144,9 +142,13 @@ void Update() {
 	previous_frame_time = SDL_GetTicks();
 
 	/*Increase rotation every update for testing */
+	//mesh.rotation.x += 0.01;
+	//mesh.rotation.y += 0.01;
+	//.rotation.z += 0.01;
+	mesh.scale.x += 0.0002;
 	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.01;
+	mesh.translation.x += 0.002;
+	mesh.translation.z = 5;
 	
 
 	/* Initialize projected points(vectors) for testing */
@@ -160,25 +162,35 @@ void Update() {
 		face_vertices[1] = mesh.vertices[current_face.b - 1];
 		face_vertices[2] = mesh.vertices[current_face.c - 1];
 
-		vec3_t transformed_vertices[3];
+		vec4_t transformed_vertices[3];
 		for (int j = 0; j < 3; j++) {
-			vec3_t transformed_vertex = face_vertices[j];
+			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
-			/*Get the rotated point*/
-			transformed_vertex = RotateX(transformed_vertex, mesh.rotation.x);
-			transformed_vertex = RotateY(transformed_vertex, mesh.rotation.y);
-			transformed_vertex = RotateZ(transformed_vertex, mesh.rotation.z);
+			mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
+			mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
+			mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
+			mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+			mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
 
+			mat4_t world_matrix = mat4_identity();
+			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
+			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
+
+			transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
+			
 			// get away from the camera
-			transformed_vertex.z += 5;
+			//transformed_vertex.z += 5;
 			transformed_vertices[j] = transformed_vertex;
 		}
 		
 		if(culling_mode == CULL_BACKFACE){
 			// Get All 3 vertices of the current triangle face
-			vec3_t vector_a = transformed_vertices[0]; // a
-			vec3_t vector_b = transformed_vertices[1]; // b
-			vec3_t vector_c = transformed_vertices[2]; // c
+			vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]); // a
+			vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]); // b
+			vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]); // c
 
 			// Find length
 			vec3_t vector_ab = vec3_sub(vector_b, vector_a);
@@ -203,10 +215,12 @@ void Update() {
 		}
 
 		
-		vec2_t projected_points[3];
+		vec4_t projected_points[3];
 		for(int j = 0; j < 3; j++){
-			projected_points[j] = project(transformed_vertices[j]);
-			projected_points[j].x += WINDOW_WIDTH / 2;
+			projected_points[j] = mat4_mul_vec4_project(perspective_matrix, transformed_vertices[j]);
+			projected_points[j].x *= (WINDOW_WIDTH / 2);
+			projected_points[j].y *= (WINDOW_HEIGHT / 2);
+			projected_points[j].x += (WINDOW_WIDTH / 2);
 			projected_points[j].y += (WINDOW_HEIGHT / 2);
 		}
 
