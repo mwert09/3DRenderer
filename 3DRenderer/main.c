@@ -10,6 +10,7 @@
 #include "triangle.h"
 #include "array.h"
 #include "matrix.h"
+#include "light.h"
 
 /*#define N_POINTS (9*9*9)
  Cube vectors for testing 
@@ -145,9 +146,9 @@ void Update() {
 	//mesh.rotation.x += 0.01;
 	//mesh.rotation.y += 0.01;
 	//.rotation.z += 0.01;
-	mesh.scale.x += 0.0002;
+	//mesh.scale.x += 0.0002;
 	mesh.rotation.x += 0.01;
-	mesh.translation.x += 0.002;
+	//mesh.translation.x += 0.002;
 	mesh.translation.z = 5;
 	
 
@@ -186,13 +187,13 @@ void Update() {
 			transformed_vertices[j] = transformed_vertex;
 		}
 		
-		if(culling_mode == CULL_BACKFACE){
+		
 			// Get All 3 vertices of the current triangle face
 			vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]); // a
 			vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]); // b
 			vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]); // c
 
-			// Find length
+			
 			vec3_t vector_ab = vec3_sub(vector_b, vector_a);
 			vec3_t vector_ac = vec3_sub(vector_c, vector_a);
 			vec3_normalize(&vector_ab);
@@ -207,12 +208,13 @@ void Update() {
 
 			// Calculate dot 
 			float DotNormalCamera = vec3_dot(normal, camera_ray);
-
-			// If it is less than zero don't add this triangle to triangles_to_render array
-			if (DotNormalCamera < 0) {
-				continue;
+			
+			if (culling_mode == CULL_BACKFACE) {
+				// If it is less than zero don't add this triangle to triangles_to_render array
+				if (DotNormalCamera < 0) {
+					continue;
+				}
 			}
-		}
 
 		
 		vec4_t projected_points[3];
@@ -220,11 +222,16 @@ void Update() {
 			projected_points[j] = mat4_mul_vec4_project(perspective_matrix, transformed_vertices[j]);
 			projected_points[j].x *= (WINDOW_WIDTH / 2);
 			projected_points[j].y *= (WINDOW_HEIGHT / 2);
+
+			projected_points[j].y *= -1;
+			
 			projected_points[j].x += (WINDOW_WIDTH / 2);
 			projected_points[j].y += (WINDOW_HEIGHT / 2);
 		}
 
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+		float light_intensity_factor = -vec3_dot(normal, light.direction);
+		uint32_t triangle_color = light_apply_intensity(current_face.color, light_intensity_factor);
 
 		triangle_t projected_triangle = {
 			.points = {
@@ -232,7 +239,7 @@ void Update() {
 				{projected_points[1].x, projected_points[1].y},
 				{projected_points[2].x, projected_points[2].y},
 			},
-			.color = current_face.color,
+			.color = triangle_color,
 			.avg_depth = avg_depth
 		};
 		
