@@ -11,6 +11,7 @@
 #include "array.h"
 #include "matrix.h"
 #include "light.h"
+#include "texture.h"
 
 /*#define N_POINTS (9*9*9)
  Cube vectors for testing 
@@ -47,6 +48,10 @@ void Setup() {
 	float znear = 0.1;
 	float zfar = 100.0;
 	perspective_matrix = mat4_make_perspective(fov, aspect_ratio, znear, zfar);
+
+	mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+	texture_width = 64;
+	texture_height = 64;
 	
 	LoadCubeMeshData();
 	//LoadMeshData("./assets/f22.obj");
@@ -73,7 +78,15 @@ void Render() {
 			);
 		}
 
-		if (render_method == RENDER_FILL_TRIANGLE_WIREFRAME || render_method == WIREFRAME || render_method == WIREFRAME_VERTEX) {
+		if (render_method == RENDER_TEXTURED_TRIANGLE || render_method == RENDER_TEXTURED_TRIANGLE_WIREFRAME) {
+
+			DrawTexturedTriangle(triangle_to_render.points[0].x, triangle_to_render.points[0].y, triangle_to_render.texcoords[0].u, triangle_to_render.texcoords[0].v,
+				triangle_to_render.points[1].x, triangle_to_render.points[1].y, triangle_to_render.texcoords[1].u, triangle_to_render.texcoords[1].v,
+				triangle_to_render.points[2].x, triangle_to_render.points[2].y, triangle_to_render.texcoords[2].u, triangle_to_render.texcoords[2].v,
+				mesh_texture);
+		}
+
+		if (render_method == RENDER_FILL_TRIANGLE_WIREFRAME || render_method == WIREFRAME || render_method == WIREFRAME_VERTEX || render_method == RENDER_TEXTURED_TRIANGLE_WIREFRAME) {
 			DrawTriangle(triangle_to_render.points[0].x, triangle_to_render.points[0].y,
 				triangle_to_render.points[1].x, triangle_to_render.points[1].y,
 				triangle_to_render.points[2].x, triangle_to_render.points[2].y,
@@ -122,6 +135,12 @@ void Input() {
 		}
 		if (event.key.keysym.sym == SDLK_4) {
 			render_method = RENDER_FILL_TRIANGLE_WIREFRAME;
+		}
+		if (event.key.keysym.sym == SDLK_5) {
+			render_method = RENDER_TEXTURED_TRIANGLE;
+		}
+		if (event.key.keysym.sym == SDLK_6) {
+			render_method = RENDER_TEXTURED_TRIANGLE_WIREFRAME;
 		}
 		if (event.key.keysym.sym == SDLK_c) {
 			culling_mode = CULL_BACKFACE;
@@ -238,6 +257,11 @@ void Update() {
 				{projected_points[0].x, projected_points[0].y},
 				{projected_points[1].x, projected_points[1].y},
 				{projected_points[2].x, projected_points[2].y},
+			},
+			.texcoords = {
+				{current_face.a_uv.u, current_face.a_uv.v},
+				{current_face.b_uv.u, current_face.b_uv.v},
+				{current_face.c_uv.u, current_face.c_uv.v}
 			},
 			.color = triangle_color,
 			.avg_depth = avg_depth
