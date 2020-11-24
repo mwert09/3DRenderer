@@ -4,6 +4,7 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
 uint32_t* color_buffer = NULL;
+float* z_buffer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
 int WINDOW_WIDTH = 0;
@@ -63,6 +64,16 @@ void ClearColorBuffer(uint32_t color) {
 		}
 	}
 }
+
+void ClearZBuffer()
+{
+	for (int y = 0; y < WINDOW_HEIGHT; y++) {
+		for (int x = 0; x < WINDOW_WIDTH; x++) {
+			z_buffer[(WINDOW_WIDTH * y) + x] = 1.0f;
+		}
+	}
+}
+
 /*This function is for copying our color buffer to texture and render it*/
 void RenderColorBuffer(void) {
 	SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, (int)(sizeof(uint32_t) * WINDOW_WIDTH));

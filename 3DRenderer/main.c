@@ -13,13 +13,10 @@
 #include "light.h"
 #include "texture.h"
 
- /*#define N_POINTS (9*9*9)
-  Cube vectors for testing
- vec3_t cube_points[N_POINTS];
- vec2_t projected_points[N_POINTS];*/
-
+#define MAX_TRIANGLES_PER_MESH 10000
  // Triangles to render each frame 
-triangle_t* TrianglesToRender = NULL;
+triangle_t TrianglesToRender[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
 
 mat4_t perspective_matrix;
 
@@ -41,6 +38,7 @@ void Setup() {
 	render_method = RENDER_TEXTURED_TRIANGLE_WIREFRAME;
 	culling_mode = CULL_BACKFACE;
 	color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+	z_buffer = (float*)malloc(sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
 	color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	float fov = M_PI / 3.0;
@@ -63,17 +61,15 @@ void Render() {
 	/*Let's draw a grid*/
 	DrawGrid();
 
-	int NumberOfTriangles = array_length(TrianglesToRender);
-
 	/* Testing cube */
-	for (int i = 0; i < NumberOfTriangles; i++) {
+	for (int i = 0; i < num_triangles_to_render; i++) {
 		triangle_t triangle_to_render = TrianglesToRender[i];
 
 		if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIREFRAME) {
 
-			DrawFilledTriangle(triangle_to_render.points[0].x, triangle_to_render.points[0].y,
-				triangle_to_render.points[1].x, triangle_to_render.points[1].y,
-				triangle_to_render.points[2].x, triangle_to_render.points[2].y,
+			DrawFilledTriangle(triangle_to_render.points[0].x, triangle_to_render.points[0].y, triangle_to_render.points[0].z, triangle_to_render.points[0].w,
+				triangle_to_render.points[1].x, triangle_to_render.points[1].y, triangle_to_render.points[1].z, triangle_to_render.points[1].w,
+				triangle_to_render.points[2].x, triangle_to_render.points[2].y, triangle_to_render.points[2].z, triangle_to_render.points[2].w,
 				triangle_to_render.color
 			);
 		}
@@ -105,8 +101,8 @@ void Render() {
 	/*Now we have a color buffer
 	  We copy our color buffer to our texture and render it
 	*/
-	array_free(TrianglesToRender);
 	RenderColorBuffer();
+	ClearZBuffer();
 	ClearColorBuffer(0xFF000000);
 	SDL_RenderPresent(renderer);
 }
@@ -159,9 +155,8 @@ void Update() {
 		SDL_Delay(time_to_wait);
 	}
 	previous_frame_time = SDL_GetTicks();
-	
-	TrianglesToRender = NULL;
-	
+
+	num_triangles_to_render = 0;
 
 	mesh.rotation.x -= 0.000;
 	mesh.rotation.y += 0.009;
@@ -247,7 +242,6 @@ void Update() {
 			projected_points[j].y += (WINDOW_HEIGHT / 2.0);
 		}
 
-		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 		float light_intensity_factor = -vec3_dot(normal, light.direction);
 		uint32_t triangle_color = light_apply_intensity(current_face.color, light_intensity_factor);
 
@@ -262,25 +256,15 @@ void Update() {
 				{ current_face.b_uv.u, current_face.b_uv.v },
 				{ current_face.c_uv.u, current_face.c_uv.v }
 			},
-			.color = triangle_color,
-			.avg_depth = avg_depth
+			.color = triangle_color
 		};
 
-		array_push(TrianglesToRender, projected_triangle);
-	}
-
-	// Sort the triangles to render by their avg_depth
-	int num_triangles = array_length(TrianglesToRender);
-	for (int i = 0; i < num_triangles; i++) {
-		for (int j = i; j < num_triangles; j++) {
-			if (TrianglesToRender[i].avg_depth < TrianglesToRender[j].avg_depth) {
-				// Swap the triangles positions in the array
-				triangle_t temp = TrianglesToRender[i];
-				TrianglesToRender[i] = TrianglesToRender[j];
-				TrianglesToRender[j] = temp;
-			}
+		if(num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
+		{
+			TrianglesToRender[num_triangles_to_render] = projected_triangle;
+			num_triangles_to_render++;
 		}
-	}
+	}	
 }
 
 // Free resouces when we are done
@@ -288,6 +272,7 @@ void FreeResources() {
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	free(color_buffer);
+	free(z_buffer);
 	upng_free(png_texture);
 	SDL_DestroyTexture(color_buffer_texture);
 	array_free(mesh.faces);

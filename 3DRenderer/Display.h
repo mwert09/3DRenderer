@@ -29,12 +29,15 @@ extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
 extern uint32_t* color_buffer;
+extern float* z_buffer;
 extern SDL_Texture* color_buffer_texture;
 
 //Initialize SDL
 bool InitializeSDL(void);
 //Clear color buffer
 void ClearColorBuffer(uint32_t color);
+//Clear Z buffer
+void ClearZBuffer(void);
 //Render color buffer
 void RenderColorBuffer(void);
 //Draw a grid on the screen
