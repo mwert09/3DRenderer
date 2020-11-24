@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/3DRenderer/assets/crab.png
+/3DRenderer/assets/drone.png
+/3DRenderer/assets/efa.png
+/3DRenderer/assets/f117.png
+/3DRenderer/assets/f22.png
+/3DRenderer/assets/pikuma.png

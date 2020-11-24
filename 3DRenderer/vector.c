@@ -149,6 +149,14 @@ vec4_t vec4_from_vec3(vec3_t v)
 	return result;
 }
 
+vec2_t vec2_from_vec4(vec4_t v)
+{
+	vec2_t result = {
+	v.x,
+	v.y
+	};
+	return result;
+}
 
 /* Rotate vector around x axis */
 vec3_t RotateX(vec3_t point, float angle) {

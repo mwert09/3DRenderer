@@ -2,15 +2,17 @@
 #define TEXTURE_H
 #include <stdint.h>
 
+#include "upng.h"
+
 typedef struct
 {
 	float u, v;
 }tex2_t;
 
-extern uint32_t* mesh_texture;
 extern int texture_width;
 extern int texture_height;
-extern const uint8_t REDBRICK_TEXTURE[];
+extern const upng_t* png_texture;
+extern uint32_t* mesh_texture;
 
-
+void LoadPngTextureData(char* filePath);
 #endif
